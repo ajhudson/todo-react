@@ -1,4 +1,17 @@
 import React, { Component } from 'react';
+import styled from 'styled-components';
+import { TodoBanner } from './TodoBanner';
+import { TodoCreator } from './TodoCreator';
+import { TodoRow } from './TodoRow';
+
+const Button = styled.button`
+  background: ${ props => props.isPrimary ? 'blue' : 'transparent' };
+  border-radius: 3px;
+  border: 2px solid palevioletred;
+  color: palevioletred;
+  margin: 0 1em;
+  padding: 0.25em 1em;
+`;
 
 export default class App extends Component
 {
@@ -6,13 +19,14 @@ export default class App extends Component
     super(props);
 
     this.state = {
+      isPrimary: false,
       userName: 'Andy H',
       todoItems: [
         { action: 'Buy Flowers', done: false },
         { action: 'Get Shoes', done: false },
         { action: 'Collect Tickets', done: true }
-      ],
-      newItemText: ''
+      ]/*,
+      newItemText: ''*/
     };
   }
 
@@ -20,10 +34,10 @@ export default class App extends Component
     this.setState({ newItemText: event.target.value });
   }
 
-  createNewToDo = () => {
-    if (!this.state.todoItems.find(item => item.action === this.state.newItemText)) {
+  createNewToDo = (task) => {
+    if (!this.state.todoItems.find(item => item.action === task)) {
       this.setState({ 
-                      todoItems: [...this.state.todoItems, { action: this.state.newItemText, done: false }], 
+                      todoItems: [...this.state.todoItems, { action: task, done: false }], 
                       newItemText: ''
                     });
     }
@@ -34,27 +48,18 @@ export default class App extends Component
   });
   
 
-  todoTableRows = () => this.state.todoItems.map(item => 
-                                                  <tr key={ item.action }>
-                                                    <td>{ item.action }</td>
-                                                    <td><input type='checkbox' checked={ item.done } onChange={ () => this.toggleToDo(item) }></input></td>
-                                                  </tr>);
+  todoTableRows = () => this.state.todoItems.map(item => <TodoRow key={ item.action } item={ item } callback={ this.toggleToDo } />);
 
   render() {
     return (
       <div>
-        <h4 className='bg-primary text-white text-center p-2'>
-          {this.state.userName}'s To Do List
-          ({this.state.todoItems.filter(i => !i.done).length } items to do)
-        </h4>
+        <TodoBanner name={ this.state.userName } tasks={ this.state.todoItems } />
 
         <div className='containerFluid'>
-          <div className='my-1'>
-            <input className='form-control' value={this.state.newItemText} onChange={this.updateNewTextValue} /> 
-          </div>
+          <TodoCreator callback={ this.createNewToDo } />
         </div>
 
-        <button className='btn btn-primary mt-1' onClick={this.createNewToDo}>Add</button>
+        {/* <Button onClick={this.createNewToDo} isPrimary={ this.state.isPrimary }>Add</Button> */}
 
         <table className='table table-striped table-bordered'>
           <thead>
